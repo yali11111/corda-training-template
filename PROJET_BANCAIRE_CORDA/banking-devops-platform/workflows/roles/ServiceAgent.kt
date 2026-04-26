@@ -1,0 +1,3 @@
+class ServiceAgent {
+    fun process() {}
+}
