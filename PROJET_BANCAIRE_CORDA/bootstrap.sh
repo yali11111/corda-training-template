@@ -2,167 +2,230 @@
 
 set -e
 
-PROJECT_NAME="corda-loan-banking-platform"
+PROJECT="banking-devops-platform"
 
-echo " Création du projet $PROJECT_NAME..."
+echo "Creating DevOps full-stack project: $PROJECT"
 
-mkdir $PROJECT_NAME
-cd $PROJECT_NAME
+mkdir -p $PROJECT
+cd $PROJECT
 
-#########################################
-# STRUCTURE
-#########################################
+########################################
+# CORE STRUCTURE
+########################################
 
-mkdir -p contracts/src/main/kotlin/com/template/contracts
-mkdir -p workflows/src/main/kotlin/com/template/{states,flows}
-mkdir -p clients/spring-server/src/main/kotlin/com/template/{api,service,dto,config}
-mkdir -p clients/spring-server/src/main/resources
-mkdir -p frontend/src/{api,components,pages}
-mkdir -p database
+mkdir -p backend frontend database
+mkdir -p contracts workflows/{states,flows,roles}
+mkdir -p risk fraud
+mkdir -p integration/nextcloud
 mkdir -p docker/corda-node
+mkdir -p k8s/{dev,prod}
+mkdir -p observability/{prometheus,grafana,dashboards,loki,tempo}
+mkdir -p scripts
 mkdir -p .github/workflows
 
-touch README.md docker-compose.yml install.sh
-
-#########################################
+########################################
 # README
-#########################################
+########################################
 
 cat > README.md <<EOF
-# Corda Loan Banking Platform
+# Banking DevOps Platform
 
-Full-stack banking demo using Corda, Spring Boot and React.
+Full DevOps architecture:
+- Backend (Spring Boot)
+- Frontend (React)
+- Corda network
+- Risk engine
+- Fraud detection engine
+- Kubernetes dev/prod
+- Observability stack
 EOF
 
-#########################################
-# CONTRACT
-#########################################
+########################################
+# BACKEND
+########################################
 
-cat > contracts/src/main/kotlin/com/template/contracts/LoanContract.kt <<EOF
-package com.template.contracts
+cat > backend/app.kt <<EOF
+class BackendApp {
+    fun run() = println("Backend running")
+}
+EOF
 
+########################################
+# FRONTEND
+########################################
+
+cat > frontend/app.js <<EOF
+console.log("Frontend running");
+EOF
+
+########################################
+# RISK ENGINE
+########################################
+
+cat > risk/RiskEngine.kt <<EOF
+class RiskEngine {
+    fun score(): Int = 0
+}
+EOF
+
+########################################
+# FRAUD ENGINE
+########################################
+
+cat > fraud/FraudEngine.kt <<EOF
+class FraudEngine {
+    fun detect(): Boolean = false
+}
+EOF
+
+########################################
+# CORDa CONTRACTS
+########################################
+
+cat > contracts/LoanContract.kt <<EOF
 class LoanContract
 EOF
 
-#########################################
-# STATE
-#########################################
-
-cat > workflows/src/main/kotlin/com/template/states/LoanState.kt <<EOF
-package com.template.states
-
-data class LoanState(val amount: Int)
+cat > workflows/states/LoanState.kt <<EOF
+data class LoanState(val id: String = "")
 EOF
 
-#########################################
-# FLOW
-#########################################
-
-cat > workflows/src/main/kotlin/com/template/flows/CreateLoanFlow.kt <<EOF
-package com.template.flows
-
-class CreateLoanFlow
-EOF
-
-#########################################
-# BACKEND - CONTROLLER
-#########################################
-
-cat > clients/spring-server/src/main/kotlin/com/template/api/LoanController.kt <<EOF
-package com.template.api
-
-import org.springframework.web.bind.annotation.*
-
-@RestController
-@RequestMapping("/api/loan")
-class LoanController {
-
-    @GetMapping
-    fun hello() = "Loan API running"
+cat > workflows/roles/ServiceAgent.kt <<EOF
+class ServiceAgent {
+    fun process() {}
 }
 EOF
 
-#########################################
-# BACKEND - SERVICE
-#########################################
-
-cat > clients/spring-server/src/main/kotlin/com/template/service/LoanService.kt <<EOF
-package com.template.service
-
-import org.springframework.stereotype.Service
-
-@Service
-class LoanService
-EOF
-
-#########################################
-# FRONTEND
-#########################################
-
-cat > frontend/src/pages/Home.jsx <<EOF
-export default function Home() {
-  return <h1>Corda Loan Dashboard</h1>;
+cat > workflows/roles/Director.kt <<EOF
+class Director {
+    fun approve() = true
 }
 EOF
 
-#########################################
-# DOCKER COMPOSE
-#########################################
+########################################
+# NEXTCLOUD INTEGRATION
+########################################
 
-cat > docker-compose.yml <<EOF
-version: "3.8"
-services:
-  postgres:
-    image: postgres:15
-    environment:
-      POSTGRES_DB: corda
-      POSTGRES_USER: corda
-      POSTGRES_PASSWORD: corda
-    ports:
-      - "5432:5432"
-
-  backend:
-    image: openjdk:17
-    ports:
-      - "8080:8080"
-
-  frontend:
-    image: node:18
-    ports:
-      - "3000:3000"
+cat > integration/nextcloud/uploader.kt <<EOF
+class NextcloudUploader {
+    fun upload() {}
+}
 EOF
 
-#########################################
-# DATABASE
-#########################################
+########################################
+# DOCKER (CORDa NODE)
+########################################
 
-cat > database/init.sql <<EOF
-CREATE TABLE loans (
-    id VARCHAR(64) PRIMARY KEY,
-    amount INT
-);
+cat > docker/corda-node/Dockerfile <<EOF
+FROM openjdk:11
+CMD ["echo", "Corda Node"]
 EOF
 
-#########################################
-# INSTALL SCRIPT
-#########################################
+########################################
+# KUBERNETES DEV
+########################################
 
-cat > install.sh <<EOF
+cat > k8s/dev/backend.yaml <<EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: backend-dev
+EOF
+
+cat > k8s/dev/frontend.yaml <<EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: frontend-dev
+EOF
+
+########################################
+# KUBERNETES PROD
+########################################
+
+cat > k8s/prod/backend.yaml <<EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: backend-prod
+EOF
+
+########################################
+# OBSERVABILITY STACK
+########################################
+
+cat > observability/prometheus/prometheus.yml <<EOF
+global:
+  scrape_interval: 15s
+EOF
+
+cat > observability/grafana/dashboards/risk.json <<EOF
+{}
+EOF
+
+cat > observability/grafana/dashboards/fraud.json <<EOF
+{}
+EOF
+
+cat > observability/grafana/dashboards/corda.json <<EOF
+{}
+EOF
+
+########################################
+# SCRIPTS
+########################################
+
+cat > scripts/deploy-dev.sh <<EOF
 #!/bin/bash
-echo "Starting project..."
-docker-compose up
+echo "Deploy DEV environment"
 EOF
 
-chmod +x install.sh
+cat > scripts/deploy-prod.sh <<EOF
+#!/bin/bash
+echo "Deploy PROD environment"
+EOF
 
-#########################################
-# GIT INIT
-#########################################
+cat > scripts/rollback.sh <<EOF
+#!/bin/bash
+echo "Rollback deployment"
+EOF
+
+chmod +x scripts/*.sh
+
+########################################
+# GITHUB CI/CD
+########################################
+
+cat > .github/workflows/ci.yml <<EOF
+name: CI
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+EOF
+
+cat > .github/workflows/cd-dev.yml <<EOF
+name: CD DEV
+on:
+  push:
+    branches: [develop]
+EOF
+
+cat > .github/workflows/cd-prod.yml <<EOF
+name: CD PROD
+on:
+  push:
+    branches: [main]
+EOF
+
+########################################
+# INIT GIT
+########################################
 
 git init
 git add .
-git commit -m "Initial commit - Corda loan project"
+git commit -m "Initial DevOps banking platform scaffold"
 
-echo ""
-echo "Projet généré avec succès !"
-
+echo " Project initialized successfully"
